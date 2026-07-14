@@ -36,3 +36,5 @@ output/*.xlsx
 xiaohongshu_scraper.py
 beverage_scanner.py
 browser_init.py
+output/*.md
+output/*.docx
