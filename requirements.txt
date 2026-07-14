@@ -1,0 +1,5 @@
+# 小红书饮料赛道爬虫 v2（OpenCLI 版）
+# 安装命令: pip install -r requirements.txt
+
+pandas>=2.0.0          # 数据处理与 Excel 导出
+openpyxl>=3.1.0        # Excel 读写 + 样式 + 透视表

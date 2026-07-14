@@ -24,3 +24,15 @@ desktop.ini
 # 环境
 .env
 .env.local
+
+# 浏览器数据（旧版 Playwright 残留）
+browser_data/
+
+# Excel 输出数据（体积大，留底即可）
+output/*.xlsx
+
+# 大文件备份
+*.py.old
+xiaohongshu_scraper.py
+beverage_scanner.py
+browser_init.py
