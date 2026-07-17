@@ -38,3 +38,6 @@ beverage_scanner.py
 browser_init.py
 output/*.md
 output/*.docx
+
+# 本地配置（含真实关键词，不公开）
+config.py

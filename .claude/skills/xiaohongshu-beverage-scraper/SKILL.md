@@ -1,16 +1,16 @@
 ---
 name: xiaohongshu-beverage-scraper
 description: >
-  小红书饮料赛道数据抓取全流程 SOP —— 从安装 OpenCLI 到生成增强版 Excel +
+  小红书多赛道数据抓取全流程 SOP —— 从安装 OpenCLI 到生成增强版 Excel +
   数据透视表 + 使用说明文档，一键标准化执行。
 
-  适用场景：泛饮品/饮料品类的小红书舆情调研、消费者洞察数据收集、
-  品牌口碑监测。支持多关键词分组（正向+负向均衡）、评论楼中楼抓取、
-  自动去噪、Excel 增强输出。
+  适用场景：任意品类的小红书舆情调研、消费者洞察数据收集、品牌口碑监测。
+  支持自定义关键词分组（正向+负向均衡）、评论楼中楼抓取、
+  自动去噪、Excel 增强输出。关键词通过 config.py 配置，完全脱离代码。
 triggers:
-  - xiaohongshu: 小红书饮料/饮品/奶茶/咖啡 调研/爬虫/数据抓取/舆情
-  - keyword: 饮料赛道/饮品调研/奶茶数据/咖啡舆情/小红书爬虫
-  - action: 抓取小红书饮料数据/跑饮料爬虫/更新饮料数据
+  - xiaohongshu: 小红书 调研/爬虫/数据抓取/舆情
+  - keyword: 小红书爬虫/小红书数据/小红书调研
+  - action: 抓取小红书数据/跑小红书爬虫/更新小红书数据
 metadata:
   author: 诡秘专供
   version: "2.0"
@@ -21,24 +21,24 @@ metadata:
     - Python 3.10+ (pandas, openpyxl)
 ---
 
-# 🧋 小红书饮料赛道数据抓取 SOP
+# 🧋 小红书数据抓取 SOP
 
-> 完整标准化工作流：从零安装 → 数据抓取 → 增强 Excel → 数据透视 → 使用说明
+> 完整标准化工作流：从零安装 → 配置关键词 → 数据抓取 → 增强 Excel → 数据透视
 
 ## 工作流总览
 
 ```
-安装环境 → 验证登录 → 运行爬虫 → 增强 Excel → 追加透视 → 生成说明 → ✅ 完成
+安装环境 → 配置关键词 → 验证登录 → 运行爬虫 → 增强 Excel → 追加透视 → ✅ 完成
 ```
 
 | 阶段 | 做什么 | 产出 |
 |---|---|---|
 | ① 环境准备 | 安装 Agent Reach + OpenCLI + 小红书频道 | 可用的抓取环境 |
-| ② 登录验证 | Chrome 登录小红书 + opencli doctor 检查 | 登录态就绪 |
-| ③ 数据抓取 | 运行 beverage_scanner_v2.py | 原始 Excel（完整版） |
-| ④ 数据增强 | 运行 enhance_excel.py | 增强版 Excel（8 Sheet） |
-| ⑤ 追加透视 | 运行 add_pivot_sheets.py | 含透视表的最终 Excel |
-| ⑥ 生成文档 | 编写使用说明书 | Markdown + Word 文档 |
+| ② 配置关键词 | `cp config.example.py config.py` → 编辑 | 自定义关键词配置 |
+| ③ 登录验证 | Chrome 登录小红书 + opencli doctor 检查 | 登录态就绪 |
+| ④ 数据抓取 | 运行 `tools/beverage_scanner_v2.py` | 原始 Excel（完整版） |
+| ⑤ 数据增强 | 运行 `tools/enhance_excel.py` | 增强版 Excel（8 Sheet） |
+| ⑥ 追加透视 | 运行 `tools/add_pivot_sheets.py` | 含透视表的最终 Excel |
 
 ---
 
@@ -79,7 +79,37 @@ pip install pandas openpyxl
 
 ---
 
-## ② 登录验证（每次抓取前必做）
+## ② 配置关键词（首次需要）
+
+### 创建配置文件
+
+```bash
+cp config.example.py config.py
+```
+
+### 编辑你的关键词
+
+`config.py` 结构如下（示例使用宠物赛道，你可换成任何品类）：
+
+```python
+KEYWORD_GROUPS = {
+    "🐱 猫咪养护": ["猫咪掉毛怎么办", "猫粮推荐", "猫咪呕吐原因"],
+    "🐶 狗狗日常": ["狗狗零食推荐", "小型犬好养吗", "狗狗训练技巧"],
+    "🏠 宠物家居": ["猫爬架推荐", "宠物友好租房", "阳台养猫改造"],
+    "💊 宠物健康": ["猫咪绝育注意事项", "狗狗皮肤病", "宠物保险值得买吗"],
+}
+
+KW_TO_GROUP = { ... }   # 跟上面一一对应
+GROUP_ORDER = ["🐱 猫咪养护", "🐶 狗狗日常", ...]
+```
+
+- 组数不限、每组词数不限
+- 所有脚本自动从 `config.py` 读取，无需改代码
+- `config.py` 已加入 `.gitignore`，不会上传 GitHub
+
+---
+
+## ③ 登录验证（每次抓取前必做）
 
 ### 2.1 登录小红书
 
@@ -121,25 +151,24 @@ username: Art3mis
 
 ### 一键运行（推荐）
 
-双击 `一键抓取.bat`，脚本会自动：
-1. 检查 OpenCLI 可用性
-2. 验证小红书登录态
-3. 等你按 Enter 确认
-4. 执行完整抓取流程
+```bash
+# 或双击
+tools/一键抓取.bat
+```
 
 ### 手动运行
 
 ```bash
-cd "D:\claude\AI race forest"
-python beverage_scanner_v2.py
+cd "项目目录"
+python tools/beverage_scanner_v2.py
 ```
 
 ### 抓取配置（v2 默认参数）
 
 | 参数 | 值 | 说明 |
 |---|---|---|
-| 关键词 | 12 个，4 组 | 🍹口味上新 / 💚健康诉求 / 📸视觉圈层 / ⚠️踩雷避坑 |
-| 每关键词笔记 | 4 条 | 12 × 4 = 最多 48 条 |
+| 关键词 | 通过 `config.py` 自定义 | 组数、词数完全自由 |
+| 每关键词笔记 | 4 条 | `MAX_NOTES_PER_KEYWORD` |
 | 评论策略 | 全局热度 TOP 10 笔记 | 按点赞数排序取前 10 |
 | 每笔记评论 | 30 条（含子回复） | --with-replies |
 | 关键词间隔 | 3-6 秒 | 搜索阶段，快扫快过 |
@@ -149,26 +178,27 @@ python beverage_scanner_v2.py
 
 ### 关键词分组
 
-```
-🍹 口味上新: 奶茶新品、果茶推荐、咖啡新品
-💚 健康诉求: 低卡奶茶、无糖饮料推荐、减脂期喝什么
-📸 视觉圈层: 奶茶探店、夏日饮品合集、网红奶茶打卡
-⚠️ 踩雷避坑: 奶茶避雷、饮料踩雷、最难喝饮料
-```
+关键词全部通过 `config.py` 配置，详见第②步。示例（宠物赛道）：
+
+| 组别 | 关键词 |
+|---|---|
+| 🐱 猫咪养护 | 猫咪掉毛怎么办、猫粮推荐、猫咪呕吐原因 |
+| 🐶 狗狗日常 | 狗狗零食推荐、小型犬好养吗、狗狗训练技巧 |
+| 🏠 宠物家居 | 猫爬架推荐、宠物友好租房、阳台养猫改造 |
+| 💊 宠物健康 | 猫咪绝育注意事项、狗狗皮肤病、宠物保险值得买吗 |
 
 ### 预期产出
 
-- 笔记：~47-48 条
+- 笔记：取决于关键词数 × 4
 - 评论：~300-500 条（主评论 + 子回复）
-- 输出目录：`output/饮料赛道_小红书_完整版_YYYYMMDD_HHMMSS.xlsx`
+- 输出目录：`output/[关键词前缀]_小红书_完整版_YYYYMMDD_HHMMSS.xlsx`
 
 ---
 
 ## ④ 数据增强
 
 ```bash
-cd "D:\claude\AI race forest"
-python enhance_excel.py
+python tools/enhance_excel.py
 ```
 
 **做了什么：**
@@ -186,8 +216,7 @@ python enhance_excel.py
 ## ⑤ 追加数据透视
 
 ```bash
-cd "D:\claude\AI race forest"
-python add_pivot_sheets.py
+python tools/add_pivot_sheets.py
 ```
 
 **追加 4 个透视 Sheet：**
@@ -259,15 +288,18 @@ TOP_COMMENT_NOTES = 10          # 改这个调抓评论的笔记数
 
 ### 换关键词
 
-修改 `KEYWORD_GROUPS` 字典即可：
+**编辑 `config.py`** 即可，无需改任何代码：
+
 ```python
 KEYWORD_GROUPS = {
-    "🍹 口味上新": ["你的关键词1", "你的关键词2", "你的关键词3"],
-    # ... 可以增减组别和关键词
+    "你的组名": ["你的关键词1", "你的关键词2", "你的关键词3"],
+    # ... 组数不限、词数不限
 }
+KW_TO_GROUP = { ... }   # 同步更新
+GROUP_ORDER = [...]     # 控制 Excel 中的排序
 ```
 
-同步更新 `enhance_excel.py` 和 `add_pivot_sheets.py` 中的 `KW_TO_GROUP` 映射。
+所有脚本（爬虫、增强、透视）都从 `config.py` 读取，一步到位。
 
 ---
 
@@ -298,9 +330,10 @@ KEYWORD_GROUPS = {
 
 | 文件 | 说明 |
 |---|---|
-| `beverage_scanner_v2.py` | 🐍 主爬虫脚本（OpenCLI 版） |
-| `beverage_scanner.py` | 🕸️ 旧版 Playwright 方案（备用） |
-| `enhance_excel.py` | 📊 Excel 增强脚本 |
-| `add_pivot_sheets.py` | 🔀 数据透视表追加脚本 |
-| `一键抓取.bat` | 🖱️ Windows 一键运行脚本 |
-| `output/使用说明_详细版.md` | 📝 数据使用说明书 |
+| `config.py` | 🔒 你的关键词配置（本地，不提交） |
+| `config.example.py` | 📋 配置模板（公开，可提交） |
+| `tools/beverage_scanner_v2.py` | 🐍 主爬虫脚本（OpenCLI 版） |
+| `tools/beverage_scanner.py` | 🕸️ 旧版 Playwright 方案（备用） |
+| `tools/enhance_excel.py` | 📊 Excel 增强脚本 |
+| `tools/add_pivot_sheets.py` | 🔀 数据透视表追加脚本 |
+| `tools/一键抓取.bat` | 🖱️ Windows 一键运行脚本 |
